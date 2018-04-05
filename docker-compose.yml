@@ -13,7 +13,7 @@ services:
       - './backend/vendor/:/var/www/vendor:ro,cached'
 
   php:
-    image: reload/drupal-php7-fpm:7.1
+    image: reload/drupal-php7-fpm:7.2
     ports:
       - '9000'
     depends_on:
