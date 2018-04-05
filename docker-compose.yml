@@ -1,4 +1,4 @@
-# Example file for a Drupal-based setup.
+# Example file for a PHP-based setup.
 version: '3'
 services:
 
@@ -7,23 +7,26 @@ services:
     ports:
       - '80'
     depends_on:
-      - fpm
+      - php
     volumes:
-      - './:/var/www/web'
+      - './web/:/var/www/web:rw,cached'
+      - './backend/vendor/:/var/www/vendor:ro,cached'
 
-  fpm:
+  php:
     image: reload/drupal-php7-fpm:7.1
     ports:
       - '9000'
     depends_on:
       - db
     working_dir: /var/www/web
+    volumes:
+      - './:/var/www:rw,cached'
     environment:
       PATH: '/var/www/vendor/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
       PHP_SENDMAIL_PATH: /usr/local/bin/mhsendmail --smtp-addr="mailhog:1025"
 
   db:
-    image: reload/db-datadir:spejderdk-latest-fulldb
+    image: reload/db-datadir:reloaddk-latest-fulldb
     ports:
       - '3306'
 
