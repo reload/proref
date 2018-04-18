@@ -1,0 +1,36 @@
+# Example file for a PHP-based setup.
+version: '3'
+services:
+
+  web:
+    image: reload/drupal-apache-fpm
+    ports:
+      - '80'
+    depends_on:
+      - php
+    volumes:
+      - './web/:/var/www/web:rw,cached'
+      - './backend/vendor/:/var/www/vendor:ro,cached'
+
+  php:
+    image: reload/drupal-php7-fpm:7.2
+    ports:
+      - '9000'
+    depends_on:
+      - db
+    working_dir: /var/www/web
+    volumes:
+      - './:/var/www:rw,cached'
+    environment:
+      PATH: '/var/www/vendor/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
+      PHP_SENDMAIL_PATH: /usr/local/bin/mhsendmail --smtp-addr="mailhog:1025"
+
+  db:
+    image: reload/db-datadir:reloaddk-latest-fulldb
+    ports:
+      - '3306'
+
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - '8025'
