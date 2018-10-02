@@ -1,0 +1,20 @@
+@startuml
+title Drupal 7 site integrated with NemID via Nemlogin
+left to right direction
+actor User
+
+frame "Drupal 7 - helbredsprofilen.dk" as drupal {
+ artifact hp_nemlogin 
+}
+
+frame "Java - Nemlogin" {
+ artifact nemlogin
+}
+
+node Nemid
+
+User <--> drupal
+hp_nemlogin <--> nemlogin
+nemlogin <--> Nemid
+
+@enduml
