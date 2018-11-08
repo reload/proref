@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Stop and remove containers
+docker-compose rm --stop --force
+
+# Start up again
+docker-compose up -d php
+# wait just a bit before proceeding, since the php container is not ready right away.
+# Block until php is ready
+
+# Block until php is ready
+docker-compose exec php wait-for-it -t 60 localhost:9000
+
+# Start doing application-specific resets, eg.
+docker-compose exec php /bin/bash -c 'cd .. && rm -rf vendor/'
+docker-compose exec php /bin/bash -c 'cd .. && composer --no-interaction install --optimize-autoloader'
+# ... etc

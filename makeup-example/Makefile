@@ -8,93 +8,66 @@
 # required during development.
 #
 # The commands are:
-#   make up 	- bring up all containers
-#   make stop 	- stop all containers
-#   make reset 	- stop all containers, update them and any dbs, and restart
-#   make test	- run any local tests
-#   make logs   - follow docker logs from the containers
-#   make status - show status of the environment
+#   make help
+#   make up 
+#   make stop
+#   make reset
+#   make test
+#   make logs
+#   make status
 
 # =============================================================================
 # MAIN COMMAND TARGETS
 # =============================================================================
 
-# Nuke, update and reinstall everything and bring it all up again.
-reset: update up
+default: help
+
+help: ## Display a list of the public targets
+	@grep -F -h "##" $(MAKEFILE_LIST) | grep -v "^_" | grep -F -v fgrep  | sed -e 's/\\$$//' | sed -e 's/##//'
+
+reset: ## Stop all containers, reset their state and start up again.
+reset: _reset-container-state up
 
 # Take the whole environment up without altering the existing state of the containers.
-up: validate
+up: ## bring up all containers
+up: _validate
 	docker-compose up -d --remove-orphans
 
 # Stop all containers without altering anything else.
-stop:
+stop: ## stop all containers
 	docker-compose stop
 
 # Run tests on a running environment. This target must always be run explicitly.
-test: ensure-php
-	docker-compose exec php /bin/bash -c 'cd .. && ./vendor/bin/phpunit -c ./tests/phpunit.xml.dist'
+test: ## run any local tests
+test: _ensure-php
+	@./scripts/run-tests
 
 # Stream container logs to console.
-logs:
+logs: ## follow docker logs from the containers
 	docker-compose logs -f --tail=50
 
 # Show current state of the environment.
-status:
+status: ## show status of the environment
 	docker-compose ps
 	docker-compose top
-
-
-# =============================================================================
-# OTHER COMMAND TARGETS
-# =============================================================================
-# These commands are specific to this project.
-
-# Check if the environment meets requirements. Requires containers are up.
-validate: ensure-php
-	# Example
-	docker-compose exec php drush --version
-
-# Reinstall Drupal if required (normally not).
-drupal-reinstall: ensure-php
-	docker-compose exec php drush site-install -y minimal --config-dir=../config/sync --account-mail=noreply+proref@reload.dk --account-pass=admin --site-mail=noreply+proref@reload.dk --site-name=ProRef --db-su=root --db-su-pw=root --db-url=mysql://db:db@db/db
-
-# Import the local config into a running Drupal site.
-drupal-locale-update: ensure-php
-	docker-compose exec php drush -y locale-check
-	docker-compose exec php drush -y locale-update
-
-# Run Drupal Console with an arbitrary set of parameters.
-# 	Example: make drupal-run CMD=site:status
-drupal-run: ensure-php
-	docker-compose exec php drupal ${CMD}
-
-# Run Drush with an arbitrary set of parameters.
-# 	Example: make drush-run CMD=status
-drush-run: ensure-php
-	docker-compose exec php drush ${CMD}
-
 
 # =============================================================================
 # HELPERS
 # =============================================================================
 # These targets are usually not run manually.
 
-# Fetch and replace updated containers and db-dump images and run composer install.
-update: docker-pull
-	docker-compose rm --stop --force
-	docker-compose up -d php
-	# wait just a bit before proceeding, since the php container is not ready right away.
-	sleep 5s
-	docker-compose exec php /bin/bash -c 'cd .. && rm -rf vendor/'
-	docker-compose exec php /bin/bash -c 'cd .. && composer --no-interaction install --optimize-autoloader'
+# Check if the environment meets requirements. Requires containers are up.
+_validate: _ensure-php
+	# Example
 	docker-compose exec php drush --version
-	#docker-compose exec php drush cache-rebuild
-	#docker-compose exec php drush -y updatedb --entity-updates
-	#docker-compose exec php drush -y config-import
 
-ensure-php:
+# Fetch and replace updated containers and db-dump images and run composer install.
+_reset-container-state: _docker-pull
+	@./scripts/reset-container-state
+
+_ensure-php:
 	docker-compose up -d --no-deps php
 
 # Pull all images from Docker Hub.
-docker-pull:
+_docker-pull:
 	docker-compose pull --parallel

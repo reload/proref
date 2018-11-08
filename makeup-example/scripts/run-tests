@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Example:
+docker-compose exec php /bin/bash -c 'cd .. && ./vendor/bin/phpunit -c ./tests/phpunit.xml.dist'
