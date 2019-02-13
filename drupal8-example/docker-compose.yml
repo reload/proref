@@ -8,12 +8,12 @@ services:
       - '80'
       - '443'
     depends_on:
-      - php
+      - fpm
     volumes:
       - './web/:/var/www/web:rw,cached'
       - './backend/vendor/:/var/www/vendor:ro,cached'
 
-  php:
+  fpm:
     image: reload/drupal-php7-fpm:7.2
     ports:
       - '9000'
