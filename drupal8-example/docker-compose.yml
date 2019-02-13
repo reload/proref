@@ -21,6 +21,7 @@ services:
     working_dir: /var/www/web
     volumes:
       - './:/var/www:rw,cached'
+      - './docker/my_init.d/install-cron.sh:/etc/my_init.d/install-cron.sh'
     environment:
       PATH: '/var/www/vendor/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
       PHP_SENDMAIL_PATH: /usr/local/bin/mhsendmail --smtp-addr="mailhog:1025"
