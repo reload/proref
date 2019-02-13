@@ -1,7 +1,6 @@
-# Example file for a PHP-based setup.
 version: '3'
-services:
 
+services:
   web:
     image: reload/drupal-apache-fpm:latest
     ports:
