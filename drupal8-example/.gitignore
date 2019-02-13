@@ -32,7 +32,7 @@ web/sites/default/files
 /.env
 
 # Ignore docker compose override.
-docker-compose.override.yml
+/docker-compose.override.yml
 
 # Ignore directory for Node Package Manager (npm).
 node_modules
