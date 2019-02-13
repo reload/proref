@@ -1,18 +1,18 @@
-# Example file for a PHP-based setup.
 version: '3'
-services:
 
+services:
   web:
-    image: reload/drupal-apache-fpm
+    image: reload/drupal-apache-fpm:latest
     ports:
       - '80'
+      - '443'
     depends_on:
-      - php
+      - fpm
     volumes:
       - './web/:/var/www/web:rw,cached'
       - './backend/vendor/:/var/www/vendor:ro,cached'
 
-  php:
+  fpm:
     image: reload/drupal-php7-fpm:7.2
     ports:
       - '9000'
@@ -21,16 +21,56 @@ services:
     working_dir: /var/www/web
     volumes:
       - './:/var/www:rw,cached'
+      - './docker/my_init.d/install-cron.sh:/etc/my_init.d/install-cron.sh'
     environment:
       PATH: '/var/www/vendor/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
       PHP_SENDMAIL_PATH: /usr/local/bin/mhsendmail --smtp-addr="mailhog:1025"
+      DRUSH_OPTIONS_URI: https://MY-PROJECT.docker
 
   db:
-    image: reload/db-datadir:reloaddk-latest-fulldb
+    image: mariadb:10.3.9
     ports:
       - '3306'
+    ## Below setup is for using a prebuild db-datadir.
+    volumes:
+      - 'db-data:/var/lib/mysql'
+    depends_on:
+      - db-data
+    ## If you want af db-data dump use this image instead (and remove
+    ## the volumes and depends_on).
+    # image: eu.gcr.io/reloaddk-data/db-data:MY-PROJECT-latest
+
+    ## If you want a clean database use the below environment instead
+    ## (and remove the volumes and depends_on).
+    # environment:
+    #   MYSQL_ROOT_PASSWORD: root
+    #   MYSQL_DATABASE: db
+    #   MYSQL_USER: db
+    #   MYSQL_PASSWORD: db
+
+  db-data:
+    image: eu.gcr.io/reloaddk-data/db-datadir:MY-PROJECT-latest
+    volumes:
+      - 'db-data:/var/lib/mysql'
 
   mailhog:
     image: mailhog/mailhog
     ports:
       - '8025'
+
+  npm:
+    image: node:9-slim
+    volumes:
+      - './web/:/var/www/web:rw,cached'
+      - 'cache:/npm-cache'
+    working_dir: /var/www
+    environment:
+      PATH: '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
+      npm_config_cache: '/npm-cache/node'
+    entrypoint: "npm"
+    command: ["run", "build-and-watch"]
+
+volumes:
+  # NPM cache that survives docker-reset.sh
+  cache:
+  db-data:
