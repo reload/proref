@@ -59,5 +59,19 @@ services:
     ports:
       - '8025'
 
+  npm:
+    image: node:9-slim
+    volumes:
+      - './web/:/var/www/web:rw,cached'
+      - 'cache:/npm-cache'
+    working_dir: /var/www
+    environment:
+      PATH: '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
+      npm_config_cache: '/npm-cache/node'
+    entrypoint: "npm"
+    command: ["run", "build-and-watch"]
+
 volumes:
+  # NPM cache that survives docker-reset.sh
+  cache:
   db-data:
