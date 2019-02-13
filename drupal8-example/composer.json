@@ -1,12 +1,12 @@
 {
-    "name": "drupal-composer/drupal-project",
-    "description": "Project template for Drupal 8 projects with composer",
+    "name": "reload/my-project",
+    "description": "MY PROJECT",
     "type": "project",
     "license": "GPL-2.0-or-later",
     "authors": [
         {
-            "name": "",
-            "role": ""
+            "name": "Reload A/S",
+            "role": "Development"
         }
     ],
     "repositories": [
@@ -57,6 +57,20 @@
         ]
     },
     "extra": {
+        "composer-exit-on-patch-failure" : true,
+        "patchLevel": {
+            "drupal/core": "-p2"
+        },
+        "drupal-scaffold": {
+            "excludes": [
+                "install.php",
+                "sites/default/default.settings.php",
+                "sites/example.settings.local.php",
+                "sites/example.sites.php",
+                "update.php",
+                "web.config"
+            ]
+        },
         "installer-paths": {
             "web/core": ["type:drupal-core"],
             "web/libraries/{$name}": ["type:drupal-library"],
