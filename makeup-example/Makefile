@@ -1,78 +1,40 @@
-#
-# RELOAD MAKE UP
-#
-# This file exemplifies the commands that should be available in all
-# our project repos. The commands may function differently in each project,
-# but they should achieve the same goal.
-# It should be easy to use these to execute the main day-to-day operations
-# required during development.
-#
-# The commands are:
-#   make up 	- bring up all containers
-#   make stop 	- stop all containers
-#   make reset 	- stop all containers, update them and any dbs, and restart
-#   make test	- run any local tests
-#   make logs   - follow docker logs from the containers
-#   make status - show status of the environment
-
 # =============================================================================
 # MAIN COMMAND TARGETS
 # =============================================================================
+.DEFAULT_GOAL := help
 
-# Nuke, update and reinstall everything and bring it all up again.
-reset: update up
+help: ## Display a list of the public targets
+# Find lines that starts with a word-character, contains a colon and then a
+# doublehash (underscores are not word-characters, so this excludes private
+# targets), then strip the hash and print.
+	@grep -E -h "^\w.*:.*##" $(MAKEFILE_LIST) | sed -e 's/\(.*\):.*##\(.*\)/\1	\2/'
 
-# Take the whole environment up without altering the existing state of the containers.
-up: validate
+reset: _reset-container-state ## Stop all containers, reset their state and start up again.
+
+up:  ## Take the whole environment up without altering the existing state of the containers.
 	docker-compose up -d --remove-orphans
 
-# Stop all containers without altering anything else.
-stop:
+stop: ## Stop all containers without altering anything else.
 	docker-compose stop
 
-# Run tests on a running environment. This target must always be run explicitly.
-test: ensure-php
-	docker-compose exec php /bin/bash -c 'cd .. && ./vendor/bin/phpunit -c ./tests/phpunit.xml.dist'
-
-# Stream container logs to console.
-logs:
+logs: ## Follow docker logs from the containers
 	docker-compose logs -f --tail=50
 
-# Show current state of the environment.
-status:
+status: ## Show status of the environment
 	docker-compose ps
 	docker-compose top
 
+# Use the current list of plantuml files to define a list of required pngs.
+diagrams = $(patsubst %.plantuml,%.png,$(wildcard docs/diagrams/*.plantuml))
 
-# =============================================================================
-# OTHER COMMAND TARGETS
-# =============================================================================
-# These commands are specific to this project.
+# The default docs target depends on all png-files
+docs: $(diagrams) ## Build plantuml-diagrams for the documentation
 
-# Check if the environment meets requirements. Requires containers are up.
-validate: ensure-php
-	# Example
-	docker-compose exec php drush --version
-
-# Reinstall Drupal if required (normally not).
-drupal-reinstall: ensure-php
-	docker-compose exec php drush site-install -y minimal --config-dir=../config/sync --account-mail=noreply+proref@reload.dk --account-pass=admin --site-mail=noreply+proref@reload.dk --site-name=ProRef --db-su=root --db-su-pw=root --db-url=mysql://db:db@db/db
-
-# Import the local config into a running Drupal site.
-drupal-locale-update: ensure-php
-	docker-compose exec php drush -y locale-check
-	docker-compose exec php drush -y locale-update
-
-# Run Drupal Console with an arbitrary set of parameters.
-# 	Example: make drupal-run CMD=site:status
-drupal-run: ensure-php
-	docker-compose exec php drupal ${CMD}
-
-# Run Drush with an arbitrary set of parameters.
-# 	Example: make drush-run CMD=status
-drush-run: ensure-php
-	docker-compose exec php drush ${CMD}
-
+# Static pattern that maps between diagram pngs and plantuml-files.
+$(diagrams): docs/diagrams/%.png : docs/diagrams/%.plantuml
+	@echo '$< -> $@'
+	rm -f $@
+	cat $< | docker run --rm -i think/plantuml -tpng > $@
 
 # =============================================================================
 # HELPERS
@@ -80,21 +42,20 @@ drush-run: ensure-php
 # These targets are usually not run manually.
 
 # Fetch and replace updated containers and db-dump images and run composer install.
-update: docker-pull
-	docker-compose rm --stop --force
-	docker-compose up -d php
-	# wait just a bit before proceeding, since the php container is not ready right away.
-	sleep 5s
-	docker-compose exec php /bin/bash -c 'cd .. && rm -rf vendor/'
-	docker-compose exec php /bin/bash -c 'cd .. && composer --no-interaction install --optimize-autoloader'
-	docker-compose exec php drush --version
-	#docker-compose exec php drush cache-rebuild
-	#docker-compose exec php drush -y updatedb --entity-updates
-	#docker-compose exec php drush -y config-import
+_reset-container-state: _docker-pull
+	./scripts/docker/docker-reset.sh
 
-ensure-php:
-	docker-compose up -d --no-deps php
+# We'd like to only pull for images once a day.
+# To achive this we only pull if we can't find a ".last-pull-<date>" file that
+# contains todays date in its name. If we can't find the file we do the pull and
+# and touch the file. This way we only do a daily pull.
+LAST_PULL_FILE:=.last-pull-$(shell date +%Y%m%d)
+_docker-pull: $(LAST_PULL_FILE)
+$(LAST_PULL_FILE):
+    # We could not find the daily file, clear out any old files, do the pull
+    # and generate the file.
+	rm -f .last-pull-*
+	docker-compose pull
+	touch $(LAST_PULL_FILE)
 
-# Pull all images from Docker Hub.
-docker-pull:
-	docker-compose pull --parallel
+.PHONY: default help reset up stop logs status docs _reset-container-state _docker-pull
