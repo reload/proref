@@ -10,7 +10,16 @@ services:
       - fpm
     volumes:
       - './web/:/var/www/web:rw,cached'
-      - './backend/vendor/:/var/www/vendor:ro,cached'
+      - '${HOME}/.local/share/mkcert:/mkcert:ro'
+      - '${HOME}/.local/share/dev_certificates:/cert:rw'
+    environment:
+      # Ensure dory redirects from http to https. We want to nag
+      # people into doing development on valid HTTPS.
+      HTTPS_METHOD: redirect
+      # Ensure dory/nginx-proxy goes via port 80.
+      VIRTUAL_PORT: '80'
+      VIRTUAL_HOST: MY-PROJECT.docker
+      MKCERT_DOMAINS: "MY-PROJECT.docker mail.MY-PROJECT.docker"
 
   fpm:
     image: reload/drupal-php7-fpm:7.2
@@ -57,6 +66,8 @@ services:
     image: mailhog/mailhog
     ports:
       - '8025'
+    environment:
+      VIRTUAL_HOST: mail.MY-PROJECT.docker
 
   npm:
     image: node:9-slim
