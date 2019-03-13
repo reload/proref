@@ -12,7 +12,14 @@ help: ## Display a list of the public targets
 reset: _reset-container-state ## Stop all containers, reset their state and start up again.
 
 up:  ## Take the whole environment up without altering the existing state of the containers.
+# On macOS, we add docker-compose-mac.yml to use NFS volumes.
+ifeq ($(shell uname), Darwin)
+	docker-compose -f docker-compose.yml -f docker-compose-mac.yml up -d --remove-orphans
+else
 	docker-compose up -d --remove-orphans
+endif
+
+	# Tada!! 🎉 Run 'make logs' to follow output.
 
 stop: ## Stop all containers without altering anything else.
 	docker-compose stop

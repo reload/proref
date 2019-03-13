@@ -42,14 +42,22 @@ docker-compose kill && docker-compose rm -v -f && docker-compose down --remove-o
 
 # Start up containers in the background and continue immediately
 echoc "*** Starting new containers"
-COMPOSER_OVERRIDE=
-[ -f "docker-compose.override.yml" ] && COMPOSER_OVERRIDE="-f docker-compose.override.yml"
-if [[ $DOCKER_SYNC ]]; then
-    cmd="docker-compose -f docker-compose.yml -f docker-compose-dev.yml ${COMPOSER_OVERRIDE} up --remove-orphans -d"
+if [[ $COMPOSER_OVERRIDE ]]; then
+    if [[ $NFS ]]; then
+        export COMPOSE_FILE = docker-compose.yml:docker-compose-mac.yml:docker-compose.override.yml
+    fi
+    if [[ $DOCKER_SYNC ]]; then
+        export COMPOSE_FILE = docker-compose.yml:docker-compose-dev.yml:docker-compose.override.yml
+    fi
 else
-    cmd="docker-compose up --remove-orphans -d"
+    if [[ $NFS ]]; then
+        export COMPOSE_FILE = docker-compose.yml:docker-compose-mac.yml
+    fi
+    if [[ $DOCKER_SYNC ]]; then
+        export COMPOSE_FILE = docker-compose.yml:docker-compose-dev.yml
+    fi
 fi
-eval "$cmd"
+docker-compose up --remove-orphans -d
 
 # Perform the drupal-specific reset
 echoc "*** Resetting Drupal"

@@ -24,6 +24,21 @@ if [[ -z "${NO_DOCKER_SYNC:-}" && $(type -P "docker-sync") && -f "${SCRIPT_DIR}/
     DOCKER_SYNC=1
 fi
 
+# Enable NFS if:
+# - NO_NFS is not set
+# - Host is running macOS
+# - we can find a docker-compose-mac.yml
+NFS=
+if [[ -z "${NO_NFS:-}" && `uname -s` -eq 'Darwin' && -f "${SCRIPT_DIR}/../../docker-compose-mac.yml" ]]; then
+    NFS=1
+fi
+
+# Determine of docker-compose override exists.
+COMPOSER_OVERRIDE=
+if [[ -f "${SCRIPT_DIR}/../../docker-compose.override.yml" ]]; then
+    COMPOSER_OVERRIDE=1;
+fi
+
 # Determine if we have Dory.
 DORY=
 if [[ $(type -P "dory") ]]; then
