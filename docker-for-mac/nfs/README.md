@@ -48,4 +48,4 @@ If not, please check the example [here](../../drupal8-example)
 
 * [The main docker-compose file](../../drupal8-example/docker-compose.yml)
 * [The docker-compose file for macOS](../../drupal8-example/docker-compose-mac.yml)
-* [The Makefile](../../drupal8-example/Makefile)
+* [The Makefile](../../makeup-example/Makefile)
