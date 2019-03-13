@@ -46,6 +46,6 @@ If not, please check the example [here](../../drupal8-example)
 
 **Specifically:**
 
+* [The main docker-compose file](../../drupal8-example/docker-compose.yml)
 * [The docker-compose file for macOS](../../drupal8-example/docker-compose-mac.yml)
-* [The docker-compose file for Linux](../../drupal8-example/docker-compose.yml)
 * [The Makefile](../../drupal8-example/Makefile)
