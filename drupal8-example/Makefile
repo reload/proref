@@ -10,7 +10,7 @@ endif
 down:
 ifeq ($(shell uname), Darwin)
 	docker-compose -f docker-compose.yml -f docker-compose-mac.yml stop
-	docker-compose -f docker-compose.yml -f docker-compose-mac.yml down -v
+	docker-compose -f docker-compose.yml -f docker-compose-mac.yml down -v --remove-orphans
 else
 	docker-compose stop
 	docker-compose down -v --remove-orphans
