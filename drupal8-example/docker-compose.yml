@@ -9,7 +9,7 @@ services:
     depends_on:
       - fpm
     volumes:
-      - './web/:/var/www/web:rw,cached'
+      - 'webroot:/var/www/web:rw,cached'
       - '${HOME}/.local/share/mkcert:/mkcert:ro'
       - '${HOME}/.local/share/dev_certificates:/cert:rw'
     environment:
@@ -29,7 +29,7 @@ services:
       - db
     working_dir: /var/www/web
     volumes:
-      - './:/var/www:rw,cached'
+      - 'root:/var/www:rw,cached'
       - './docker/my_init.d/install-cron.sh:/etc/my_init.d/install-cron.sh'
     environment:
       PATH: '/var/www/vendor/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
@@ -72,7 +72,7 @@ services:
   npm:
     image: node:9-slim
     volumes:
-      - './web/:/var/www/web:rw,cached'
+      - 'webroot:/var/www/web:rw,cached'
       - 'cache:/npm-cache'
     working_dir: /var/www
     environment:
@@ -85,3 +85,17 @@ volumes:
   # NPM cache that survives docker-reset.sh
   cache:
   db-data:
+  # The current folder (project root)
+  root:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${PWD}
+      o: bind
+  # The webfolder
+  webroot:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${PWD}/web
+      o: bind
