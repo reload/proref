@@ -20,6 +20,14 @@ jobs:
       - checkout
 
       - run:
+          name: Install `drupal-check`
+          command: |
+            mkdir -p ~/bin
+            curl --silent --output ~/bin/drupal-check -O -L https://github.com/mglaman/drupal-check/releases/latest/download/drupal-check.phar
+            chmod +x ~/bin/drupal-check
+            ~/bin/drupal-check --version
+
+      - run:
           name: Install PHP Extensions
           command: |
             sudo -E apt-get install -y libpng-dev
@@ -47,3 +55,17 @@ jobs:
       - run:
           name: Run PHP Unit tests
           command: vendor/bin/phpunit
+
+      - run:
+          name: Analysis and check for deprecated code
+          command: |
+            status=0
+            mkdir -p ~/test-results/analysis ~/test-results/deprecations
+            (~/bin/drupal-check --analysis --format=junit --no-progress --no-interaction -- web/modules/custom/ > ~/test-results/analysis/modules.xml) || status=1
+            (~/bin/drupal-check --analysis --format=junit --no-progress --no-interaction -- web/themes/custom/ > ~/test-results/analysis/themes.xml) || status=1
+            (~/bin/drupal-check --deprecations --format=junit --no-progress --no-interaction -- web/modules/custom/ > ~/test-results/deprecations/modules.xml) || status=1
+            (~/bin/drupal-check --deprecations --format=junit --no-progress --no-interaction -- web/themes/custom/ > ~/test-results/deprecations/themes.xml) || status=1
+            exit $status
+
+      - store_test_results:
+          path: ~/test-results
