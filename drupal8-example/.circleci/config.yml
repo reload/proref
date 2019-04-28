@@ -19,29 +19,31 @@ jobs:
     steps:
       - checkout
 
-      - run: sudo -E apt-get install -y libpng-dev
-
       - run:
           name: Install PHP Extensions
-          command: sudo -E docker-php-ext-install gd
+          command: |
+            sudo -E apt-get install -y libpng-dev
+            sudo -E docker-php-ext-install gd
 
       - run:
           name: Validate composer.json and composer.lock
           command: composer validate --no-check-all --no-check-publish
 
-      # Download and cache dependencies
       - restore_cache:
           keys:
           - v1-dependencies-{{ checksum "composer.json" }}
           # fallback to using the latest cache if no exact match is found
           - v1-dependencies-
 
-      - run: composer install -n --prefer-dist
+      - run:
+          name: Composer install dependencies
+          command: composer install -n --prefer-dist
 
       - save_cache:
           paths:
             - ./vendor
           key: v1-dependencies-{{ checksum "composer.json" }}
         
-      # run tests!
-      - run: vendor/bin/phpunit
+      - run:
+          name: Run PHP Unit tests
+          command: vendor/bin/phpunit
