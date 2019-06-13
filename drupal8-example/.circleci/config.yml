@@ -61,10 +61,8 @@ jobs:
           command: |
             status=0
             mkdir -p ~/test-results/analysis ~/test-results/deprecations
-            (~/bin/drupal-check --analysis --format=junit --no-progress --no-interaction -- web/modules/custom/ > ~/test-results/analysis/modules.xml) || status=1
-            (~/bin/drupal-check --analysis --format=junit --no-progress --no-interaction -- web/themes/custom/ > ~/test-results/analysis/themes.xml) || status=1
-            (~/bin/drupal-check --deprecations --format=junit --no-progress --no-interaction -- web/modules/custom/ > ~/test-results/deprecations/modules.xml) || status=1
-            (~/bin/drupal-check --deprecations --format=junit --no-progress --no-interaction -- web/themes/custom/ > ~/test-results/deprecations/themes.xml) || status=1
+            (~/bin/drupal-check --analysis --format=junit --no-progress --no-interaction -- web/modules/custom/ web/themes/custom/ > ~/test-results/analysis/drupal-check.xml) || status=1
+            (~/bin/drupal-check --deprecations --format=junit --no-progress --no-interaction -- web/modules/custom/ web/themes/custom/ > ~/test-results/deprecations/drupal-check.xml) || status=1
             exit $status
 
       - store_test_results:
