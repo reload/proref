@@ -2,7 +2,11 @@
 #
 # Check https://circleci.com/docs/2.0/language-php/ for more details
 #
-version: 2
+version: 2.1
+
+orbs:
+  drupal-check: reload/drupal-check@1
+
 jobs:
   build:
     docker:
@@ -18,14 +22,6 @@ jobs:
 
     steps:
       - checkout
-
-      - run:
-          name: Install `drupal-check`
-          command: |
-            mkdir -p ~/bin
-            curl --silent --output ~/bin/drupal-check -O -L https://github.com/mglaman/drupal-check/releases/latest/download/drupal-check.phar
-            chmod +x ~/bin/drupal-check
-            ~/bin/drupal-check --version
 
       - run:
           name: Install PHP Extensions
@@ -56,14 +52,10 @@ jobs:
           name: Run PHP Unit tests
           command: vendor/bin/phpunit
 
-      - run:
-          name: Analysis and check for deprecated code
-          command: |
-            status=0
-            mkdir -p ~/test-results/analysis ~/test-results/deprecations
-            (~/bin/drupal-check --analysis --format=junit --no-progress --no-interaction -- web/modules/custom/ web/themes/custom/ > ~/test-results/analysis/drupal-check.xml) || status=1
-            (~/bin/drupal-check --deprecations --format=junit --no-progress --no-interaction -- web/modules/custom/ web/themes/custom/ > ~/test-results/deprecations/drupal-check.xml) || status=1
-            exit $status
+workflows:
+  version: 2
 
-      - store_test_results:
-          path: ~/test-results
+  test:
+    jobs:
+      - build
+      - drupal-check/drupal-check
