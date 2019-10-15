@@ -1,0 +1,8 @@
+base:
+  version: '1.0'
+  css:
+    theme:
+      assets/css/THEME_NAME.bundle.css: {}
+      assets/css/THEME_NAME.print.css: {}
+  dependencies:
+    - core/drupal
