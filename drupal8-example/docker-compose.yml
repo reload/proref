@@ -9,7 +9,7 @@ services:
     depends_on:
       - fpm
     volumes:
-      - 'webroot:/var/www/web:rw,cached'
+      - 'projectroot:/var/www:rw,cached'
       - '${HOME}/.local/share/mkcert:/mkcert:ro'
       - '${HOME}/.local/share/dev_certificates:/cert:rw'
     environment:
@@ -72,7 +72,7 @@ services:
   npm:
     image: node:9-slim
     volumes:
-      - 'webroot:/var/www/web:rw,cached'
+      - 'projectroot:/var/www:rw,cached'
       - 'cache:/npm-cache'
     working_dir: /var/www/web/themes/custom/THEME_NAME
     environment:
@@ -85,12 +85,6 @@ volumes:
   # NPM cache that survives docker-reset.sh
   cache:
   db-data:
-  webroot:
-    driver: local
-    driver_opts:
-      type: none
-      device: ${PWD}/web
-      o: bind
   projectroot:
     driver: local
     driver_opts:
