@@ -1,0 +1,15 @@
+name: THEME NAME
+type: theme
+base theme: classy
+description: 'WEBSITE.dk theme'
+package: WEBSITE
+version: 0.1
+core: 8.x
+
+libraries:
+  - THEME_NAME/base
+
+regions:
+  header: 'Header'
+  content: 'Content'
+  footer: 'Footer'
