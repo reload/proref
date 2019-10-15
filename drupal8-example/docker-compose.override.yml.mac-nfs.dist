@@ -1,14 +1,6 @@
 version: '3'
 
 volumes:
-  webroot:
-    driver: local
-    driver_opts:
-      type: nfs
-      o: addr=host.docker.internal,rw,nolock,hard,nointr,nfsvers=3
-      # Notice: If using a MacOS older than Catalina, you need to instead use:
-      # device: ":${PWD}"
-      device: ":/System/Volumes/Data${PWD}"
   projectroot:
     driver: local
     driver_opts:
