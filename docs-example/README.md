@@ -2,7 +2,7 @@ Readme for Exmaple Project
 ==========================
 
 # Overview
-The Exmaple project has a very interesting architecture. It consists of 3 distinct parts: the top, the center, and the bottom part. Deserunt pariatur non ad mollit elit elit et ipsum anim nostrud irure velit do. Velit occaecat cillum ea commodo. Ut Lorem aliqua irure incididunt nulla laboris velit cillum fugiat deserunt consequat ipsum. Exercitation sint in nostrud esse quis elit.
+The Example project has a very interesting architecture. It consists of 3 distinct parts: the top, the center, and the bottom part. Deserunt pariatur non ad mollit elit elit et ipsum anim nostrud irure velit do. Velit occaecat cillum ea commodo. Ut Lorem aliqua irure incididunt nulla laboris velit cillum fugiat deserunt consequat ipsum. Exercitation sint in nostrud esse quis elit.
 
 In-depth documentation of the architecture is available in the [docs folder](./docs/).
 
@@ -38,5 +38,3 @@ The `tests` container will execute tests continuously on changes. You can tail t
 The project is hosted on Platform.sh. Pushing any branch to remote builds a fully functional test environment for that branch only. You can find the URL on the project page, or use Platforms CLI via `platform environment:info` to see the publich URL.
 
 # Deploying
-
-fsdsf
