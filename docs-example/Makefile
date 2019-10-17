@@ -1,3 +1,5 @@
-# Seek out all plantuml files and generate a png
+# Seek out all plantuml files and generate a SVG
+# this is also done during PR by a github action so it is up to you whether
+# to generate the SVG by hand.
 docs:
-	@find diagrams/*.plantuml -type f -exec basename -s .plantuml {} \; | xargs -I % bash -c "echo 'diagrams/%.plantuml -> images/%.png' ;cat diagrams/%.plantuml | docker run --rm -i think/plantuml -tpng > images/%.png"
+	docker run --rm -i -v $(PWD):/work -w /work miy4/plantuml '**/*.puml' -tsvg
