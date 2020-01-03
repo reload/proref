@@ -18,16 +18,16 @@
     "require": {
         "composer/installers": "^1.2",
         "cweagans/composer-patches": "^1.6",
-        "drupal-composer/drupal-scaffold": "^2.2",
+        "drupal/core-composer-scaffold": "^8.8",
         "drupal/console": "^1.0.2",
-        "drupal/core": "^8.6",
+        "drupal/core-recommended": "^8.8",
         "drupal/system_status": "^2.8",
         "drush/drush": "^9",
         "webflo/drupal-finder": "^1.0.0",
         "webmozart/path-util": "^2.3"
     },
     "require-dev": {
-        "webflo/drupal-core-require-dev": "^8.6"
+        "drupal/core-dev": "^8.8"
     },
     "conflict": {
         "drupal/drupal": "*"
@@ -43,7 +43,6 @@
         ]
     },
     "scripts": {
-        "drupal-scaffold": "DrupalComposer\\DrupalScaffold\\Plugin::scaffold",
         "pre-install-cmd": [
             "DrupalProject\\composer\\ScriptHandler::checkComposerVersion"
         ],
@@ -63,14 +62,19 @@
             "drupal/core": "-p2"
         },
         "drupal-scaffold": {
-            "excludes": [
-                "install.php",
-                "sites/default/default.settings.php",
-                "sites/example.settings.local.php",
-                "sites/example.sites.php",
-                "update.php",
-                "web.config"
-            ]
+            "locations": {
+                "web-root": "web/"
+            },
+            "allowed-packages": [
+                "drupal/core"
+            ],
+            "file-mapping": {
+                "[web-root]/.htaccess": {
+                    "mode": "replace",
+                    "path": "web/core/assets/scaffold/files/htaccess",
+                    "overwrite": false
+                }
+            }
         },
         "installer-paths": {
             "web/core": ["type:drupal-core"],

@@ -2,6 +2,13 @@
 
 ## Works well with the makeup-example in reload/proref.
 
+## Things you need to tweak manually:
+- Theme name (search for THEME_NAME)
+- The following settings in web/sites/default/:
+- - $settings['hash_salt'] (You can generate a salt with \Drupal\Component\Utility\Crypt::randomBytesBase64(55))
+- - $config['stage_file_proxy.settings']['origin']
+
+
 ## Using NFS with Docker for Mac
 - `$ cp docker-compose.mac-nfs.yml docker-compose.override.yml`
 
