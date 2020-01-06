@@ -13,10 +13,13 @@
     "browserify": "^16.5.0",
     "gulp": "^4.0.2",
     "gulp-autoprefixer": "^7.0.1",
+    "gulp-jshint": "^2.1.0",
     "gulp-sass": "^4.0.2",
     "gulp-sourcemaps": "^2.6.5",
     "gulp-uglify": "^3.0.2",
     "gulp4-run-sequence": "^1.0.0",
+    "jshint": "^2.11.0-rc1",
+    "jshint-stylish": "^2.2.1",
     "node-sass": "^4.13.0",
     "pump": "^3.0.0"
   }
