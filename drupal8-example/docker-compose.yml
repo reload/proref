@@ -78,7 +78,6 @@ services:
     environment:
       PATH: '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
       npm_config_cache: '/npm-cache/node'
-    entrypoint: "npm"
     command: "npm start"
 
 volumes:
