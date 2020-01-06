@@ -10,14 +10,14 @@ set -euo pipefail
 
 IFS=$'\n\t'
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-FILES=web/sites/default/files
+FILES=("web/sites/default/files" "private")
 
 # Chmod to 777 if the file is not owned by www-data
 cd "${SCRIPT_DIR}/../../"
-mkdir -p "${FILES}"
-find "${FILES}" \! -uid 33  \! -print0 -name .gitkeep | sudo xargs -0 chmod 777
+mkdir -p "${FILES[@]}"
+find "${FILES[@]}" \! -uid 33  \! -print0 -name .gitkeep | sudo xargs -0 chmod 777
 
-# Give sites default all permissions, because otherwise you'll have a bad time.
+# Make sites/default read-only and executable
 sudo chmod 777 web/sites/default
 time docker-compose exec fpm sh -c  "\
   echo ' * Waiting php container to be ready' \
@@ -29,12 +29,8 @@ time docker-compose exec fpm sh -c  "\
   echo 'Site reset' && \
   echo ' * Update database' && \
   drush -y updatedb && \
-  echo ' * Entity update' && \
-  drush -y entup && \
   echo ' * Import configuration' && \
   drush -y config-import --preview=diff && \
   echo ' * Cache rebuild' && \
-  drush cache-rebuild && \
-  echo ' * Clearing search-api' && \
-  drush search-api-clear
+  drush cache-rebuild
   "
