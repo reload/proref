@@ -5,14 +5,21 @@
 version: 2.1
 
 orbs:
+  backstop: reload/backstop@2
+  dais: reload/dais@1
   drupal-check: reload/drupal-check@1
+
+executors:
+  backstop-dais:
+    docker:
+      - image: circleci/php:7.3-cli-node-browsers
 
 jobs:
   build:
     docker:
       # specify the version you desire here
-      - image: circleci/php:7.2-apache-node-browsers
-      
+      - image: circleci/php:7.3-apache-node-browsers
+
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
       # documented at https://circleci.com/docs/2.0/circleci-images/
@@ -29,15 +36,11 @@ jobs:
             sudo -E apt-get install -y libpng-dev
             sudo -E docker-php-ext-install gd
 
-      - run:
-          name: Validate composer.json and composer.lock
-          command: composer validate --no-check-all --no-check-publish
-
       - restore_cache:
           keys:
-          - v1-dependencies-{{ checksum "composer.json" }}
-          # fallback to using the latest cache if no exact match is found
-          - v1-dependencies-
+            - v1-dependencies-{{ checksum "composer.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
 
       - run:
           name: Composer install dependencies
@@ -47,7 +50,7 @@ jobs:
           paths:
             - ./vendor
           key: v1-dependencies-{{ checksum "composer.json" }}
-        
+
       - run:
           name: Run PHP Unit tests
           command: vendor/bin/phpunit
@@ -55,7 +58,24 @@ jobs:
 workflows:
   version: 2
 
-  test:
+  'Composer build and phpunit':
     jobs:
-      - build
-      - drupal-check/drupal-check
+      - build:
+          name: Composer build and phpunit
+  'Drupal Check':
+    jobs:
+      - drupal-check/drupal-check:
+          name: Drupal Check
+  'Visual regression tests':
+    jobs:
+      - backstop/visual-test:
+          name: Visual regression tests
+          context: BackstopJS Report Github Status
+          executor: backstop-dais
+          before_test:
+            - dais/wait:
+                files: backstop.json
+          filters:
+            branches:
+              ignore:
+                - master
