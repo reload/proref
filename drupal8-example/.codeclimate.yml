@@ -1,5 +1,9 @@
 ---
 version: "2"
+checks:
+  argument-count:
+    config:
+      threshold: 6
 plugins:
   eslint:
     enabled: true
@@ -25,11 +29,12 @@ exclude_patterns:
   - web/autoload.php
   - web/index.php
   - web/sites
-  - scripts/composer/ScriptHandler.php 
+  - scripts/composer/ScriptHandler.php
+  - configuration
   # These aren't in the repo, but added for the sanity of someone
   # running CodeClimate locally.
   - build/
   - web/core
-  - node_modules/
+  - "**/node_modules/"
   - vendor/
   - "**/contrib/"
