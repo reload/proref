@@ -18,7 +18,7 @@ mkdir -p "${FILES[@]}"
 find "${FILES[@]}" \! -uid 33  \! -print0 -name .gitkeep | sudo xargs -0 chmod 777
 
 # Make sites/default read-only and executable
-sudo chmod 777 web/sites/default
+sudo chmod -R 777 web/sites/default
 time docker-compose exec fpm sh -c  "\
   echo ' * Waiting php container to be ready' \
   && wait-for-it -t 60 localhost:9000 \
